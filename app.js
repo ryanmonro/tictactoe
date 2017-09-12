@@ -98,6 +98,10 @@ for (var y = 0; y < gameSize; y++){
 var play = function(x, y){
   game.markSquare(x, y);  
   updateBoard();
+  checkGameStatus();
+}
+
+var checkGameStatus = function(){
   if (game.winner) {
     winnerMessage.textContent = game.winner + " wins!";
     instructionsMessage.textContent = "Click on board to start a new game.";
@@ -119,11 +123,8 @@ var main = document.querySelector("main");
 main.addEventListener('click', function(event){
   // if game is finished, clicking resets the game
   if (game.over){
-    console.log("resetting");
-    game.newGame();
-    updateBoard();
-    winnerMessage.textContent = "";
     // otherwise, make move in clicked square
+    newGame();
   } else {
     var clickId = event.target.id;
     var x = clickId.charAt(xPos);
@@ -147,4 +148,18 @@ var updateBoard = function(){
   }
 }
 
-game.newGame();
+var newGame = function(){
+  game.newGame();
+  updateBoard();
+  winnerMessage.textContent = "";
+  instructionsMessage.textContent = "Player " + game.player() + ", click  on a square to make your move";
+}
+
+
+//
+// program flow starts here
+//
+newGame();
+
+// add styling to boxes with winning moves
+// add styling! 
