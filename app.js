@@ -5,6 +5,7 @@ var game = {
   players: ["O", "X"],
   currentPlayer: 0,
   size: 3,
+  moves: 0,
   over: false,
   winner: null,
   player: function(){
@@ -22,6 +23,7 @@ var game = {
     }
     game.over = false;
     game.winner = null;
+    game.moves = 0;
     // choose random player to start
     game.currentPlayer = Math.floor(Math.random() * 2);
   },
@@ -37,7 +39,9 @@ var game = {
       return;
     }
     game.board[y][x] = game.players[game.currentPlayer];
+    game.moves++;
     game.checkForWin();
+
     // if game not over, switch players
     if (game.over === false){
       game.currentPlayer = Math.abs(game.currentPlayer - 1);
@@ -71,6 +75,9 @@ var game = {
           ) ) ) 
     {
       game.win(game.board[1][1]);
+    }
+    if (game.moves === 9) {
+      game.over = true;
     }
   },
   win: function(player){
