@@ -1,0 +1,38 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 50%;
+  margin: 0 auto;
+}
+
+main {
+  width: 100%;
+}
+
+h1 {
+  text-align: center;
+}
+
+.messages {
+  text-align: center;
+}
+
+.square {
+  border: 1px black solid;
+  display: inline-block;
+  vertical-align: top;
+  text-align: center;
+  width: 33.33333%;
+  height: 150px;
+  margin: 0;
+  line-height: 150px;
+  font-size: 100px;
+}
+
+footer {
+  position: fixed;
+  bottom: 0px;
+  padding: 20px;
+}
