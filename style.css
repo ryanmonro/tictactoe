@@ -2,9 +2,15 @@
   box-sizing: border-box;
 }
 
+html {
+  /*background: white;*/
+}
+
 body {
   width: 50%;
+  font-family: helvetica;
   margin: 0 auto;
+  background: white;
 }
 
 main {
@@ -17,6 +23,7 @@ h1 {
 
 .messages {
   text-align: center;
+  height: 100px;
 }
 
 .square {
@@ -24,7 +31,7 @@ h1 {
   display: inline-block;
   vertical-align: top;
   text-align: center;
-  width: 33.33333%;
+  width: 33.333333333333%;
   height: 150px;
   margin: 0;
   line-height: 150px;
