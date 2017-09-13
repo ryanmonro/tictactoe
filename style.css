@@ -2,44 +2,89 @@
   box-sizing: border-box;
 }
 
-html {
-  /*background: white;*/
-}
-
 body {
-  width: 50%;
-  font-family: helvetica;
+  font-family: Oswald, helvetica;
   margin: 0 auto;
-  background: white;
+  background: mediumseagreen;
+  
 }
 
 main {
+  width: 432px;
+  margin: 0 auto;
+  font-family: helvetica; 
+}
+
+header {
+  position: relative;
+  top: 0px;
+  left: 0px;
+  padding: 20px;
   width: 100%;
+  background: black;
+
 }
 
 h1 {
+  background: ivory;
+  width: 300px;
+  border: 4px black double;
+  border-radius: 5px;
+  margin: 0 auto;
   text-align: center;
+  font-size: 3em;
+  font-family: Righteous, sans-serif;
+}
+
+p {
+  text-align: center;
+}
+
+.instructions {
+  margin-top: 8px;
+}
+
+.winner {
+  display: inline-block;
+  height: 40px;
+  font-size: 2em;
+  font-family: helvetica;
+  margin: 10px 0 0 0;
 }
 
 .messages {
+  color: ivory;
   text-align: center;
-  height: 100px;
+  font-size: 1.2em;
+  height: 120px;
 }
 
 .square {
-  border: 1px black solid;
+  border-radius: 8px;
+  box-shadow: 8px 8px 8px darkgreen;
   display: inline-block;
+  background: papayawhip;
+  color: saddlebrown;
+  margin: 4px;
   vertical-align: top;
   text-align: center;
-  width: 33.333333333333%;
-  height: 150px;
-  margin: 0;
-  line-height: 150px;
+  width: 136px;
+  height: 136px;
+  line-height: 136px;
   font-size: 100px;
 }
 
+.winning-square {
+  transition: 250ms;
+  color: orangered;
+}
+
 footer {
+  width: 100%;
+  background: black;
+  color: ivory;
   position: fixed;
+  left: 0px;
   bottom: 0px;
   padding: 20px;
 }

@@ -1,7 +1,7 @@
-gameSize = 3;
 
 var game = {
   board: [],
+  winningSquares: [],
   players: ["O", "X"],
   currentPlayer: 0,
   size: 3,
@@ -14,12 +14,16 @@ var game = {
   newGame: function(){
     // clear board
     game.board = [];
+    game.winningSquares = [];
     for (var y = 0; y < game.size; y++){
       var row = [];
+      var winRow = [];
       for (var x = 0; x < game.size; x++){
         row.push(null);
+        winRow.push(0);
       }
       game.board.push(row);
+      game.winningSquares.push(winRow);
     }
     game.over = false;
     game.winner = null;
@@ -40,8 +44,7 @@ var game = {
     }
     game.board[y][x] = game.players[game.currentPlayer];
     game.moves++;
-    game.checkForWin();
-
+    game.checkForWin(); 
     // if game not over, switch players
     if (game.over === false){
       game.currentPlayer = Math.abs(game.currentPlayer - 1);
@@ -51,30 +54,45 @@ var game = {
     // check rows and columns
     for (var idx = 0; idx < game.size; idx++){
       // check row at idx
-      var row = game.board[idx];
-      if (row[0] !== null &&
-        row[0] === row[1] && 
-        row[0] === row[2]) {
-        game.win(row[0]);
+      // var row = game.board[idx];
+      if (game.board[idx][0] !== null &&
+        game.board[idx][0] === game.board[idx][1] && 
+        game.board[idx][0] === game.board[idx][2]) {
+        game.win(game.board[idx][0]);
+        game.winningSquares[idx][0] = 1;
+        game.winningSquares[idx][1] = 1;
+        game.winningSquares[idx][2] = 1;
+
       }
       // check column at idx
       if (game.board[0][idx] !== null &&
         game.board[0][idx] === game.board[1][idx] &&
         game.board[0][idx] === game.board[2][idx]) {
         game.win(game.board[0][idx]);
+        game.winningSquares[0][idx] = 1;
+        game.winningSquares[1][idx] = 1;
+        game.winningSquares[2][idx] = 1;
       }      
     }
     // check diagonals: top left to bottom right or top right to bottom 
     // left all match, middle square is winner
     if (game.board[1][1] !== null &&
-        ((  game.board[0][0] === game.board[1][1] &&
+        (  game.board[0][0] === game.board[1][1] &&
             game.board[1][1] === game.board[2][2]
-          ) || (
-            game.board[0][2] === game.board[1][1] &&
-            game.board[1][1] === game.board[2][0]
-          ) ) ) 
-    {
+          )){
       game.win(game.board[1][1]);
+      game.winningSquares[0][0] =  1;
+      game.winningSquares[1][1] =  1;
+      game.winningSquares[2][2] =  1;
+    }
+    else if (game.board[1][1] !== null &&
+          ( game.board[0][2] === game.board[1][1] &&
+            game.board[1][1] === game.board[2][0]
+          )) {
+      game.win(game.board[1][1]);
+      game.winningSquares[0][2] =  1;
+      game.winningSquares[1][1] =  1;
+      game.winningSquares[2][0] =  1;
     }
     if (game.moves === 9) {
       game.over = true;
@@ -92,11 +110,13 @@ var game = {
 var winnerMessage = document.querySelector(".winner");
 var instructionsMessage = document.querySelector(".instructions");
 // an array of divs for the game board
+var squares = document.querySelectorAll(".square");
+var sq = 0;
 var board = [];
-for (var y = 0; y < gameSize; y++){
+for (var y = 0; y < game.size; y++){
   var row = [];
-  for (var x = 0; x < gameSize; x++){
-    row.push(document.querySelector("#square" + y + x));
+  for (var x = 0; x < game.size; x++){
+    row.push(squares[sq++]);
   }
   board.push(row);
 };
@@ -111,20 +131,17 @@ var play = function(x, y){
 var checkGameStatus = function(){
   if (game.winner) {
     winnerMessage.textContent = game.winner + " wins!";
-    instructionsMessage.textContent = "Click on board to start a new game.";
+    instructions("Click on board to start a new game.");
+    highlightWinningSquares(true);
   }
   else if (game.over) {
     winnerMessage.textContent = "Draw!";
-    instructionsMessage.textContent = "Click on board to start a new game.";
+    instructions("Click on board to start a new game.");
   }
   else {
-    instructionsMessage.textContent = "Player " + game.player() + ", click  on a square to make your move";
+    instructions("Player " + game.player() + ", click  on a square to make your move");
   }
 }
-
-// positions of x and y coords in div id names
-var xPos = 7;
-var yPos = 6;
 
 var main = document.querySelector("main");
 main.addEventListener('click', function(event){
@@ -133,10 +150,7 @@ main.addEventListener('click', function(event){
     // otherwise, make move in clicked square
     newGame();
   } else {
-    var clickId = event.target.id;
-    var x = clickId.charAt(xPos);
-    var y = clickId.charAt(yPos);
-    play(x, y);
+    play(event.target.dataset.column, event.target.dataset.row);
   }
 
 })
@@ -155,11 +169,29 @@ var updateBoard = function(){
   }
 }
 
+var highlightWinningSquares = function(condition){
+  game.winningSquares.forEach(function(row, y){
+    row.forEach(function(square, x){
+      if (condition && square) {
+        board[y][x].classList.add('winning-square');
+        console.log(x,y); 
+      } else {
+        board[y][x].className = 'square';
+      }
+    });
+  });
+}
+
+var instructions = function(message){
+  instructionsMessage.textContent = message;
+}
+
 var newGame = function(){
   game.newGame();
   updateBoard();
+  highlightWinningSquares(false); 
   winnerMessage.textContent = "";
-  instructionsMessage.textContent = "Player " + game.player() + ", click  on a square to make your move";
+  instructions("Player " + game.player() + ", click  on a square to make your move");
 }
 
 
