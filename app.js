@@ -142,7 +142,7 @@ var handleClick = function(event){
   if (game.over){
     newGame();
     // otherwise, make move in clicked square
-  } else if (event.target.className === "square" ){
+  } else if (event.target.className === "squareCanvas" ){
     var row = Number(event.target.dataset.row);
     var column = Number(event.target.dataset.column);
     play(column, row);
@@ -177,8 +177,40 @@ var newGame = function(){
 }
 
 var drawPlayer = function(x, y, player){
-  board[y][x].textContent = player;
+  var canvas = board[y][x].firstChild;
+  if (player === "X") drawX(canvas);
+  else if (player === "O") drawO(canvas);
+  else if (player === null) resetSquare(canvas);
+  
 }
+
+var drawX = function(canvas){
+  var ctx = canvas.getContext("2d");
+  ctx.beginPath();
+  ctx.moveTo(15, 15);
+  ctx.lineTo(canvas.width - 15, canvas.height - 15);
+  ctx.moveTo(canvas.width - 15, 15);
+  ctx.lineTo(15, canvas.height - 15);
+  ctx.lineWidth = 8;
+  // ctx.strokeStyle = "red";
+  ctx.stroke();
+}
+
+var drawO = function(canvas){
+  var ctx = canvas.getContext("2d");
+  ctx.beginPath();
+  var center = canvas.width / 2;
+  ctx.arc(canvas.width / 2, canvas.width / 2, 50, 0, 2 * Math.PI);
+  ctx.lineWidth = 8;
+  // ctx.strokeStyle = "red";
+  ctx.stroke();
+}
+
+
+var resetSquare = function(canvas){
+  var ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+};
 
 //
 // program flow starts here
