@@ -19,7 +19,7 @@ header {
   position: relative;
   top: 0px;
   left: 0px;
-  padding: 20px;
+  padding: 10px;
   width: 100%;
   background: black;
 
@@ -28,8 +28,8 @@ header {
 h1 {
   background: ivory;
   width: 300px;
-  border: 4px black double;
-  border-radius: 5px;
+  border: 8px black double;
+  border-radius: 8px;
   margin: 0 auto;
   text-align: center;
   font-size: 3em;
@@ -41,7 +41,7 @@ p {
 }
 
 .instructions {
-  margin-top: 8px;
+  margin: 8px 0;
 }
 
 .winner {
@@ -56,7 +56,7 @@ p {
   color: ivory;
   text-align: center;
   font-size: 1.2em;
-  height: 120px;
+  height: 100px;
 }
 
 .square {
@@ -86,5 +86,5 @@ footer {
   position: fixed;
   left: 0px;
   bottom: 0px;
-  padding: 20px;
+  padding: 5px;
 }
