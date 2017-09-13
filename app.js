@@ -1,4 +1,6 @@
-
+//
+// Game model
+//
 var game = {
   board: [],
   players: ["O", "X"],
@@ -92,9 +94,9 @@ var game = {
   }
 };
 
-
+//
 // DOM 
-
+//
 var winnerMessage = document.querySelector(".winner");
 var instructionsMessage = document.querySelector(".instructions");
 
@@ -117,15 +119,14 @@ var board = getDomSquares();
 
 var play = function(x, y){
   game.markSquare(x, y);  
-  updateBoard();
   checkGameStatus();
+  updateBoard();
 }
 
 var checkGameStatus = function(){
   if (game.winner) {
     winnerMessage.textContent = game.winner + " wins!";
     instructionsMessage.textContent = "Click on board to start a new game.";
-    highlightWinningSquares(true);
   }
   else if (game.over) {
     winnerMessage.textContent = "Draw!";
@@ -154,35 +155,32 @@ main.addEventListener('click', handleClick);
 var updateBoard = function(){
   for (var y = 0; y < 3; y++){
     for (var x = 0; x < 3; x++){
-      board[y][x].textContent = game.board[y][x].player;
+      drawPlayer(x, y, game.board[y][x].player);
+      setSquareHighlight(game.board[y][x], board[y][x]);
     }
   }
 };
 
-var highlightWinningSquares = function(condition){
-  game.board.forEach(function(row, y){
-    row.forEach(function(square, x){
-      if (condition && square.win) {
-        board[y][x].classList.add('winning-square');
-      } else {
-        board[y][x].className = 'square';
-      }
-    });
-  });
+var setSquareHighlight = function(square, target){
+  if (square.win) {
+    target.classList.add('winning-square');
+  } else {
+    target.className = 'square';
+  }
 }
-
 
 var newGame = function(){
   game.newGame();
   updateBoard();
-  highlightWinningSquares(false); 
   winnerMessage.textContent = "";
   instructionsMessage.textContent = "Player " + game.player() + ", click  on a square to make your move";
+}
+
+var drawPlayer = function(x, y, player){
+  board[y][x].textContent = player;
 }
 
 //
 // program flow starts here
 //
 newGame();
-
-// clear up checkMatch function

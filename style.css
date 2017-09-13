@@ -26,7 +26,7 @@ header {
 }
 
 h1 {
-  background: ivory;
+  background: papayawhip;
   width: 300px;
   border: 8px black double;
   border-radius: 8px;
@@ -53,7 +53,7 @@ p {
 }
 
 .messages {
-  color: ivory;
+  color: papayawhip;
   text-align: center;
   font-size: 1.2em;
   height: 100px;
@@ -76,13 +76,13 @@ p {
 
 .winning-square {
   transition: 250ms;
-  color: orangered;
+  background: orangered;
 }
 
 footer {
   width: 100%;
   background: black;
-  color: ivory;
+  color: papayawhip;
   position: fixed;
   left: 0px;
   bottom: 0px;
