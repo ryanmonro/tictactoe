@@ -119,12 +119,14 @@ var board = getDomSquares();
 
 var play = function(x, y){
   game.markSquare(x, y);  
+  drawPlayer(x, y, game.board[y][x].player);
   checkGameStatus();
-  updateBoard();
+  // updateBoard();
 }
 
 var checkGameStatus = function(){
   if (game.winner) {
+    highlightWinner();
     winnerMessage.textContent = game.winner + " wins!";
     instructionsMessage.textContent = "Click on board to start a new game.";
   }
@@ -152,6 +154,14 @@ var handleClick = function(event){
 var main = document.querySelector("main");
 main.addEventListener('click', handleClick);
 
+var highlightWinner = function(){
+  for (var y = 0; y < 3; y++){
+    for (var x = 0; x < 3; x++){
+      setSquareHighlight(game.board[y][x], board[y][x]);
+    }
+  }
+}
+
 var updateBoard = function(){
   for (var y = 0; y < 3; y++){
     for (var x = 0; x < 3; x++){
@@ -177,37 +187,94 @@ var newGame = function(){
 }
 
 var drawPlayer = function(x, y, player){
-  var canvas = board[y][x].firstChild;
-  if (player === "X") drawX(canvas);
-  else if (player === "O") drawO(canvas);
-  else if (player === null) resetSquare(canvas);
+  var square = board[y][x];
+  if (player === "X") {
+    drawX(square);
+  } else if (player === "O") {
+    drawO(square);
+  } else if (player === null) {
+    resetSquare(square);
+  }
   
 }
 
-var drawX = function(canvas){
+var drawX = function(square){
+  var canvas = square.firstChild;
+  var padding = canvas.width / 2 - 50;
   var ctx = canvas.getContext("2d");
   ctx.beginPath();
-  ctx.moveTo(15, 15);
-  ctx.lineTo(canvas.width - 15, canvas.height - 15);
-  ctx.moveTo(canvas.width - 15, 15);
-  ctx.lineTo(15, canvas.height - 15);
+  ctx.moveTo(padding, padding);
+  ctx.lineTo(canvas.width - padding, canvas.height - padding);
+  ctx.moveTo(canvas.width - padding, padding);
+  ctx.lineTo(padding, canvas.height - padding);
   ctx.lineWidth = 8;
+  ctx.lineCap = 'round';
   // ctx.strokeStyle = "red";
   ctx.stroke();
 }
 
-var drawO = function(canvas){
+var drawO = function(square){
+  var canvas = square.firstChild;
   var ctx = canvas.getContext("2d");
-  ctx.beginPath();
-  var center = canvas.width / 2;
-  ctx.arc(canvas.width / 2, canvas.width / 2, 50, 0, 2 * Math.PI);
-  ctx.lineWidth = 8;
+  
+  var frame = 1;
+  var time = 150; // ms
+  var frameRate = 60;
+  var waitTime = 1000 / frameRate;
+  var frames = Math.ceil(time / waitTime);
+
+  // animate(150, 2 * Math.PI, function(){
+
+  // });
+
+  var oAnimation = setInterval(function(){
+    ctx.beginPath();
+    var center = canvas.width / 2;
+    ctx.lineWidth = 8;
+    ctx.lineCap = 'round';
+    var end = frame / frames * 2 * Math.PI;
+    console.log(frame, end);
+    ctx.arc(center, center, 50, 0, end);
+    ctx.stroke();
+    if (frame === frames) {
+      clearInterval(oAnimation);
+    }
+    frame++;
+  }, waitTime);
+  
   // ctx.strokeStyle = "red";
-  ctx.stroke();
+}
+
+// animate a canvas drawing over time
+var animate = function(ms, distance, fn){
+  var time = ms;
+  var frameRate = 60;
+  var waitTime = 1000 / frameRate;
+  var frames = Math.ceil(time / waitTime);
+  var frame = 1;
+
+  var oAnimation = setInterval(function(){
+      var ctx = canvas.getContext("2d");
+      ctx.beginPath();
+      var center = canvas.width / 2;
+      ctx.lineWidth = 8;
+      ctx.lineCap = 'round';
+      var end = frame / frames * 2 * Math.PI;
+      console.log(frame, end);
+      ctx.arc(center, center, 50, 0, end);
+      ctx.stroke();
+      if (frame === frames) {
+        clearInterval(oAnimation);
+      }
+      frame++;
+    }, waitTime);
+
+
 }
 
 
-var resetSquare = function(canvas){
+var resetSquare = function(square){
+  var canvas = square.firstChild;
   var ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 };
