@@ -10,7 +10,7 @@ body {
 }
 
 main {
-  width: 432px;
+  width: 450px;
   margin: 0 auto;
   font-family: helvetica; 
 }
@@ -38,11 +38,6 @@ h1 {
 
 p {
   text-align: center;
-}
-
-canvas {
-  width: 100;
-  height: 100;
 }
 
 .instructions {
@@ -73,9 +68,9 @@ canvas {
   margin: 4px;
   vertical-align: top;
   text-align: center;
-  width: 136px;
-  height: 136px;
-  line-height: 136px;
+  width: 142px;
+  height: 142px;
+  line-height: 142px;
   font-size: 100px;
 }
 

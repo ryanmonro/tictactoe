@@ -119,9 +119,9 @@ var board = getDomSquares();
 
 var play = function(x, y){
   game.markSquare(x, y);  
-  drawPlayer(x, y, game.board[y][x].player);
-  checkGameStatus();
-  // updateBoard();
+  // check game status after we draw the player on the board
+  drawPlayer(x, y, checkGameStatus);
+  // checkGameStatus();
 }
 
 var checkGameStatus = function(){
@@ -144,7 +144,7 @@ var handleClick = function(event){
   if (game.over){
     newGame();
     // otherwise, make move in clicked square
-  } else if (event.target.className === "squareCanvas" ){
+  } else if (event.target.className === "square-canvas" ){
     var row = Number(event.target.dataset.row);
     var column = Number(event.target.dataset.column);
     play(column, row);
@@ -165,7 +165,7 @@ var highlightWinner = function(){
 var updateBoard = function(){
   for (var y = 0; y < 3; y++){
     for (var x = 0; x < 3; x++){
-      drawPlayer(x, y, game.board[y][x].player);
+      drawPlayer(x, y);
       setSquareHighlight(game.board[y][x], board[y][x]);
     }
   }
@@ -186,20 +186,21 @@ var newGame = function(){
   instructionsMessage.textContent = "Player " + game.player() + ", click  on a square to make your move";
 }
 
-var drawPlayer = function(x, y, player){
+var drawPlayer = function(x, y, callback){
   var square = board[y][x];
+  var player = game.board[y][x].player;
   console.log(player);
   if (player === "X") {
-    drawX(square);
+    drawX(square, callback);
   } else if (player === "O") {
-    drawO(square);
+    drawO(square, callback);
   } else if (player === null) {
     resetSquare(square);
   }
   
 }
 
-var drawX = function(square){
+var drawX = function(square, callback){
   var canvas = square.firstChild;
   var ctx = canvas.getContext("2d");
   var lineWidthInitial = 8;
@@ -209,8 +210,8 @@ var drawX = function(square){
   var padding = canvas.width / 2 - 50;
   var height = canvas.height - 2 * padding;
   var width = height;
-  
-  animate(100, width, lineWidthChange, function(distance1, distance2){
+
+  animate(150, width, lineWidthChange, function(distance1, distance2){
     ctx.beginPath();
     ctx.moveTo(padding, padding);
     ctx.lineWidth = lineWidthInitial + distance2;
@@ -219,13 +220,13 @@ var drawX = function(square){
   }, 
     function(){
       ctx.lineWidth = lineWidthInitial;
-      animate(100, width, lineWidthChange, function(distance1, distance2){
+      animate(150, width, lineWidthChange, function(distance1, distance2){
         ctx.beginPath();
         ctx.moveTo(padding + width, padding);
         ctx.lineTo(padding + width - distance1, padding + distance1);  
         ctx.lineWidth = lineWidthInitial + distance2;
         ctx.stroke();
-      }, null);
+      }, callback);
     } 
   );
 
@@ -233,21 +234,21 @@ var drawX = function(square){
   
 }
 
-var drawO = function(square){
+var drawO = function(square, callback){
   var canvas = square.firstChild;
   var ctx = canvas.getContext("2d");
-  animate(200, 2 * Math.PI, 0, function(distance1, distance2){
+  var start = Math.PI / -2;
+  animate(300, -2 * Math.PI, 0, function(arcChange, distance2){
     ctx.beginPath();
     var center = canvas.width / 2;
     ctx.lineWidth = 8;
     ctx.lineCap = 'round';
-    ctx.arc(center, center, 50, 0, distance1);
+    ctx.arc(center, center, 50, start, start + arcChange, true);
     ctx.stroke();
-  }, null);
+  }, callback);
 }
 
 // animate a canvas drawing (fn) over time, then perform afterfn
-// allows animation of up to two distances
 var animate = function(ms, totalDistance1, totalDistance2, fn, afterfn){
   var frameRate = 60;
   var waitTime = 1000 / frameRate;
@@ -264,6 +265,11 @@ var animate = function(ms, totalDistance1, totalDistance2, fn, afterfn){
   }, waitTime);
 }
 
+var easeOutQuad = function (t, b, c, d) {
+  t /= d;
+  return -c * t*(t-2) + b;
+};
+
 
 var resetSquare = function(square){
   var canvas = square.firstChild;
@@ -275,3 +281,9 @@ var resetSquare = function(square){
 // program flow starts here
 //
 newGame();
+
+// todo:
+// animate should take array of distances, then you can use however many the function needs
+// curves for ease-out?
+// hidpi
+// draw the board
