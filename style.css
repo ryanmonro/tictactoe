@@ -3,37 +3,65 @@
 }
 
 body {
-  font-family: Oswald, helvetica;
+  font-family: 'Gloria Hallelujah', helvetica;
+  margin: 20px auto;
+  background: midnightblue;
+}
+
+.pad {
+  width: 550px;
+  height: 700px;
   margin: 0 auto;
-  background: mediumseagreen;
-  
+  background: url("legal-pad.png");
+  background-size: cover;
+}
+
+.board-container {
+  position: relative;
+  width: 450px;
+  height: 450px;
+  margin: 0 auto;
 }
 
 main {
-  width: 450px;
+  z-index: 1;
   margin: 0 auto;
-  font-family: helvetica; 
+  /*font-family: helvetica; */
+  position: absolute;
+  width: 450px;
+  height: 450px;
+  top: 0;
+  left: 0;
+}
+
+#board-sketch {
+  z-index: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 header {
   position: relative;
   top: 0px;
   left: 0px;
-  padding: 10px;
+  /*padding: 10px;*/
   width: 100%;
-  background: black;
+}
 
+canvas {
+  margin: 0 auto;
 }
 
 h1 {
-  background: papayawhip;
+  background: beige;
   width: 300px;
-  border: 8px black double;
-  border-radius: 8px;
-  margin: 0 auto;
+  /*border: 8px black double;*/
+  /*border-radius: 8px;*/
+  margin: 30px auto 0 auto;
   text-align: center;
   font-size: 3em;
-  font-family: Righteous, sans-serif;
+  font-family: "Permanent Marker", sans-serif;
 }
 
 p {
@@ -41,30 +69,26 @@ p {
 }
 
 .instructions {
-  margin: 8px 0;
+  margin: 2px 0;
 }
 
 .winner {
   display: inline-block;
   height: 40px;
   font-size: 2em;
-  font-family: helvetica;
+  /*font-family: helvetica;*/
   margin: 10px 0 0 0;
 }
 
 .messages {
-  color: papayawhip;
+  color: black;
   text-align: center;
-  font-size: 1.2em;
+  /*font-size: 1.2em;*/
   height: 100px;
 }
 
 .square {
-  border-radius: 8px;
-  box-shadow: 8px 8px 8px darkgreen;
   display: inline-block;
-  background: papayawhip;
-  color: saddlebrown;
   margin: 4px;
   vertical-align: top;
   text-align: center;
@@ -76,13 +100,14 @@ p {
 
 .winning-square {
   transition: 250ms;
-  background: orangered;
+  background: rgba(127,255,0,0.2);
+  opacity: 20%;
 }
 
 footer {
   width: 100%;
-  background: black;
   color: papayawhip;
+  background-color: midnightblue;
   position: fixed;
   left: 0px;
   bottom: 0px;

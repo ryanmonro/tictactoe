@@ -146,6 +146,39 @@ var drawO = function(square, callback){
   }, callback, easeInOutExpo);
 }
 
+var drawBoard = function(canvas){
+  ctx = canvas.getContext("2d");
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = 'rgba(128,128,128, 0.1)';
+  animate(600, 0, 450, function(length){
+    ctx.beginPath();
+    ctx.moveTo(150, 0);
+    ctx.lineTo(150, length);
+    ctx.stroke();
+  }, function(){
+    animate(600, 0, 450, function(length){
+    ctx.beginPath();
+    ctx.moveTo(300, 0);
+    ctx.lineTo(300, length);
+    ctx.stroke();
+  }, function(){
+    animate(600, 0, 450, function(length){
+    ctx.beginPath();
+    ctx.moveTo(0, 150);
+    ctx.lineTo(length, 150);
+    ctx.stroke();
+  }, function(){
+    animate(600, 0, 450, function(length){
+    ctx.beginPath();
+    ctx.moveTo(0, 300);
+    ctx.lineTo(length, 300);
+    ctx.stroke();
+  }, null, easeOutExpo)
+  }, easeOutExpo)
+  }, easeOutExpo)}, easeOutExpo);
+}
+
 // animate a canvas drawing (fn) over time, then perform afterfn
 var animate = function(ms, start, goal, fn, afterfn, curveFn){
   var frameRate = 60;
@@ -198,9 +231,12 @@ var winSound = new Audio("tada.mp3");
 //
 var winnerMessage = document.querySelector(".winner");
 var instructionsMessage = document.querySelector(".instructions");
+var boardSketch = document.querySelector("#board-sketch");
 
+drawBoard(boardSketch);
 // an array of divs for the game board
 var getDomSquares = function(){
+  // var boardCanvas = document.querySelector('#board');
   var squares = document.querySelectorAll(".square");
   var sq = 0;
   var board = [];
