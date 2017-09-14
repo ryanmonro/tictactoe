@@ -188,6 +188,7 @@ var newGame = function(){
 
 var drawPlayer = function(x, y, player){
   var square = board[y][x];
+  console.log(player);
   if (player === "X") {
     drawX(square);
   } else if (player === "O") {
@@ -200,76 +201,67 @@ var drawPlayer = function(x, y, player){
 
 var drawX = function(square){
   var canvas = square.firstChild;
-  var padding = canvas.width / 2 - 50;
   var ctx = canvas.getContext("2d");
-  ctx.beginPath();
-  ctx.moveTo(padding, padding);
-  ctx.lineTo(canvas.width - padding, canvas.height - padding);
-  ctx.moveTo(canvas.width - padding, padding);
-  ctx.lineTo(padding, canvas.height - padding);
-  ctx.lineWidth = 8;
+  var lineWidthInitial = 8;
+  var lineWidthChange = 0;
+  ctx.lineWidth = lineWidthInitial;
   ctx.lineCap = 'round';
-  // ctx.strokeStyle = "red";
-  ctx.stroke();
+  var padding = canvas.width / 2 - 50;
+  var height = canvas.height - 2 * padding;
+  var width = height;
+  
+  animate(100, width, lineWidthChange, function(distance1, distance2){
+    ctx.beginPath();
+    ctx.moveTo(padding, padding);
+    ctx.lineWidth = lineWidthInitial + distance2;
+    ctx.lineTo(padding + distance1, padding + distance1);  
+    ctx.stroke();
+  }, 
+    function(){
+      ctx.lineWidth = lineWidthInitial;
+      animate(100, width, lineWidthChange, function(distance1, distance2){
+        ctx.beginPath();
+        ctx.moveTo(padding + width, padding);
+        ctx.lineTo(padding + width - distance1, padding + distance1);  
+        ctx.lineWidth = lineWidthInitial + distance2;
+        ctx.stroke();
+      }, null);
+    } 
+  );
+
+  
+  
 }
 
 var drawO = function(square){
   var canvas = square.firstChild;
   var ctx = canvas.getContext("2d");
-  
-  var frame = 1;
-  var time = 150; // ms
-  var frameRate = 60;
-  var waitTime = 1000 / frameRate;
-  var frames = Math.ceil(time / waitTime);
-
-  // animate(150, 2 * Math.PI, function(){
-
-  // });
-
-  var oAnimation = setInterval(function(){
+  animate(200, 2 * Math.PI, 0, function(distance1, distance2){
     ctx.beginPath();
     var center = canvas.width / 2;
     ctx.lineWidth = 8;
     ctx.lineCap = 'round';
-    var end = frame / frames * 2 * Math.PI;
-    console.log(frame, end);
-    ctx.arc(center, center, 50, 0, end);
+    ctx.arc(center, center, 50, 0, distance1);
     ctx.stroke();
+  }, null);
+}
+
+// animate a canvas drawing (fn) over time, then perform afterfn
+// allows animation of up to two distances
+var animate = function(ms, totalDistance1, totalDistance2, fn, afterfn){
+  var frameRate = 60;
+  var waitTime = 1000 / frameRate;
+  var frames = Math.ceil(ms / waitTime);
+  var frame = 1;
+
+  var animation = setInterval(function(){
+    fn(frame * totalDistance1 / frames, frame * totalDistance2 / frames);
     if (frame === frames) {
-      clearInterval(oAnimation);
+      clearInterval(animation);
+      if (afterfn) afterfn();
     }
     frame++;
   }, waitTime);
-  
-  // ctx.strokeStyle = "red";
-}
-
-// animate a canvas drawing over time
-var animate = function(ms, distance, fn){
-  var time = ms;
-  var frameRate = 60;
-  var waitTime = 1000 / frameRate;
-  var frames = Math.ceil(time / waitTime);
-  var frame = 1;
-
-  var oAnimation = setInterval(function(){
-      var ctx = canvas.getContext("2d");
-      ctx.beginPath();
-      var center = canvas.width / 2;
-      ctx.lineWidth = 8;
-      ctx.lineCap = 'round';
-      var end = frame / frames * 2 * Math.PI;
-      console.log(frame, end);
-      ctx.arc(center, center, 50, 0, end);
-      ctx.stroke();
-      if (frame === frames) {
-        clearInterval(oAnimation);
-      }
-      frame++;
-    }, waitTime);
-
-
 }
 
 
