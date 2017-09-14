@@ -95,6 +95,105 @@ var game = {
 };
 
 //
+// Animation
+// 
+var drawX = function(square, callback){
+  var canvas = square.firstChild;
+  var ctx = canvas.getContext("2d");
+  var lineWidthInitial = 8;
+  var lineWidthChange = 0;
+  ctx.lineWidth = lineWidthInitial;
+  ctx.lineCap = 'round';
+  var padding = canvas.width / 2 - 50;
+  var height = canvas.height - 2 * padding;
+  var width = height;
+  xSound.play();
+  // draw L-R stroke in 150ms
+  animate(150, 0, width, function(crossWidth){
+    ctx.beginPath();
+    ctx.moveTo(padding, padding);
+    // ctx.lineWidth = lineWidthInitial;
+    ctx.lineTo(padding + crossWidth, padding + crossWidth);  
+    ctx.stroke();
+  }, 
+    // wait 200ms before second stroke
+    function(){
+      setTimeout(function(){
+        ctx.lineWidth = lineWidthInitial;
+        animate(150, 0, width, function(crossWidth){
+          ctx.beginPath();
+          ctx.moveTo(padding + width, padding);
+          ctx.lineTo(padding + width - crossWidth, padding + crossWidth);  
+          // ctx.lineWidth = lineWidthInitial;
+          ctx.stroke();
+      }, callback, easeOutExpo)}, 200);
+    }, easeOutExpo 
+  );
+}
+
+var drawO = function(square, callback){
+  var canvas = square.firstChild;
+  var ctx = canvas.getContext("2d");
+  var start = Math.PI / -2;
+  oSound.play();
+  animate(300, start, -2 * Math.PI, function(arcLength){
+    ctx.beginPath();
+    var center = canvas.width / 2;
+    ctx.lineWidth = 8;
+    ctx.lineCap = 'round';
+    ctx.arc(center, center, 50, start, arcLength, true);
+    ctx.stroke();
+  }, callback, easeInOutExpo);
+}
+
+// animate a canvas drawing (fn) over time, then perform afterfn
+var animate = function(ms, start, goal, fn, afterfn, curveFn){
+  var frameRate = 60;
+  var waitTime = 1000 / frameRate;
+  var frames = Math.ceil(ms / waitTime);
+  var frame = 1;
+
+  var animation = setInterval(function(){
+    fn(curveFn(frame, start, goal, frames));
+    if (frame === frames) {
+      clearInterval(animation);
+      if (afterfn) afterfn();
+    }
+    frame++;
+  }, waitTime);
+}
+
+// Ease In/Out Equations from http://gizma.com/easing/
+// t: frame, b:start, c: goal, d: frames
+var linearTween = function (t, b, c, d) {
+  return c*t/d + b;
+};
+
+var easeOutExpo = function (t, b, c, d) {
+  return c * ( -Math.pow( 2, -10 * t/d ) + 1 ) + b;
+};
+
+var easeInOutExpo = function (t, b, c, d) {
+  t /= d/2;
+  if (t < 1) return c/2 * Math.pow( 2, 10 * (t - 1) ) + b;
+  t--;
+  return c/2 * ( -Math.pow( 2, -10 * t) + 2 ) + b;
+};
+
+var resetSquare = function(square){
+  var canvas = square.firstChild;
+  var ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+};
+
+//
+// Audio
+//
+var xSound = new Audio("x.ogg");
+var oSound = new Audio("o.ogg");
+var winSound = new Audio("tada.mp3");
+
+//
 // DOM 
 //
 var winnerMessage = document.querySelector(".winner");
@@ -126,6 +225,7 @@ var play = function(x, y){
 
 var checkGameStatus = function(){
   if (game.winner) {
+    winSound.play();
     highlightWinner();
     winnerMessage.textContent = game.winner + " wins!";
     instructionsMessage.textContent = "Click on board to start a new game.";
@@ -189,7 +289,6 @@ var newGame = function(){
 var drawPlayer = function(x, y, callback){
   var square = board[y][x];
   var player = game.board[y][x].player;
-  console.log(player);
   if (player === "X") {
     drawX(square, callback);
   } else if (player === "O") {
@@ -200,90 +299,13 @@ var drawPlayer = function(x, y, callback){
   
 }
 
-var drawX = function(square, callback){
-  var canvas = square.firstChild;
-  var ctx = canvas.getContext("2d");
-  var lineWidthInitial = 8;
-  var lineWidthChange = 0;
-  ctx.lineWidth = lineWidthInitial;
-  ctx.lineCap = 'round';
-  var padding = canvas.width / 2 - 50;
-  var height = canvas.height - 2 * padding;
-  var width = height;
-
-  animate(150, width, lineWidthChange, function(distance1, distance2){
-    ctx.beginPath();
-    ctx.moveTo(padding, padding);
-    ctx.lineWidth = lineWidthInitial + distance2;
-    ctx.lineTo(padding + distance1, padding + distance1);  
-    ctx.stroke();
-  }, 
-    function(){
-      ctx.lineWidth = lineWidthInitial;
-      animate(150, width, lineWidthChange, function(distance1, distance2){
-        ctx.beginPath();
-        ctx.moveTo(padding + width, padding);
-        ctx.lineTo(padding + width - distance1, padding + distance1);  
-        ctx.lineWidth = lineWidthInitial + distance2;
-        ctx.stroke();
-      }, callback);
-    } 
-  );
-
-  
-  
-}
-
-var drawO = function(square, callback){
-  var canvas = square.firstChild;
-  var ctx = canvas.getContext("2d");
-  var start = Math.PI / -2;
-  animate(300, -2 * Math.PI, 0, function(arcChange, distance2){
-    ctx.beginPath();
-    var center = canvas.width / 2;
-    ctx.lineWidth = 8;
-    ctx.lineCap = 'round';
-    ctx.arc(center, center, 50, start, start + arcChange, true);
-    ctx.stroke();
-  }, callback);
-}
-
-// animate a canvas drawing (fn) over time, then perform afterfn
-var animate = function(ms, totalDistance1, totalDistance2, fn, afterfn){
-  var frameRate = 60;
-  var waitTime = 1000 / frameRate;
-  var frames = Math.ceil(ms / waitTime);
-  var frame = 1;
-
-  var animation = setInterval(function(){
-    fn(frame * totalDistance1 / frames, frame * totalDistance2 / frames);
-    if (frame === frames) {
-      clearInterval(animation);
-      if (afterfn) afterfn();
-    }
-    frame++;
-  }, waitTime);
-}
-
-var easeOutQuad = function (t, b, c, d) {
-  t /= d;
-  return -c * t*(t-2) + b;
-};
-
-
-var resetSquare = function(square){
-  var canvas = square.firstChild;
-  var ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-};
-
 //
 // program flow starts here
 //
 newGame();
 
+
 // todo:
 // animate should take array of distances, then you can use however many the function needs
-// curves for ease-out?
 // hidpi
 // draw the board
