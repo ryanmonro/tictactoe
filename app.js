@@ -225,6 +225,7 @@ var resetSquare = function(square){
 var xSound = new Audio("x.ogg");
 var oSound = new Audio("o.ogg");
 var winSound = new Audio("tada.mp3");
+var drawSound = new Audio("draw.ogg");
 
 //
 // DOM 
@@ -256,7 +257,6 @@ var play = function(x, y){
   game.markSquare(x, y);  
   // check game status after we draw the player on the board
   drawPlayer(x, y, checkGameStatus);
-  // checkGameStatus();
 }
 
 var checkGameStatus = function(){
@@ -267,6 +267,7 @@ var checkGameStatus = function(){
     instructionsMessage.textContent = "Click on board to start a new game.";
   }
   else if (game.over) {
+    drawSound.play();
     winnerMessage.textContent = "Draw!";
     instructionsMessage.textContent = "Click on board to start a new game.";
   }
@@ -342,6 +343,7 @@ newGame();
 
 
 // todo:
-// animate should take array of distances, then you can use however many the function needs
 // hidpi
-// draw the board
+// make drawing more human?
+// draw the board again for new game
+// readme https://pixabay.com/en/legal-pad-paper-pad-office-lined-979558/
