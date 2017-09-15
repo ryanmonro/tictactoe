@@ -355,7 +355,9 @@ var newGame = function(){
 }
 
 var showPlayerInstructions = function(){
-  instructionsMessage.innerHTML = "<span class='player-name' contenteditable>" + names[game.currentPlayer] + "</span>, click  on a square to place your " + game.player();
+  instructionsMessage.innerHTML = 
+  "<span class='player-name' contenteditable>" + names[game.currentPlayer] +
+   "</span>, click  on a square to place your " + game.player();
   var playerNameEntry = instructionsMessage.querySelector("span");
   playerNameEntry.addEventListener("input", function(){
     names[game.currentPlayer] = playerNameEntry.textContent;
@@ -388,5 +390,3 @@ var renderPlayer = function(x, y, callback){
 //
 newGame();
 
-// todo:
-// victory - first to 5
