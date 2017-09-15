@@ -13,13 +13,23 @@ I recorded audio of myself drawing noughts and crosses with a pencil and a white
 ### Curves
 After about an hour of thinking and staring at graphs and wishing I could apply the maths I learned in high school to solve the problem of "how does the pencil accelerate when a human draws a circle?" I finally realised I wanted to mimic the ease-in-out behaviour of CSS transitions, and apply that to the speed of my animations. Google helped me do the rest once I knew "js easing equations" was what I needed to search for.
 
+## Todo List
+- [ ] HiDPI support in canvas drawings
+- [ ] persistent storage of scores
+- [ ] Changing of player names too easy to break
+- [ ] The drawing is too exact. Create an array of hand-drawn Os and Xs, pick a random one for each play (use SVG, figure out how to animate those)
+- [ ] Make highlighting of winning squares look more like somebody highlighted them with a highlighter, rather than just setting the background of the divs
+- [ ] the message box still jumps around - layout problems
+
 ## Acknowledgements:
 
-- Legal pad image from (https://pixabay.com/en/legal-pad-paper-pad-office-lined-979558/)
+- Legal pad image from https://pixabay.com/en/legal-pad-paper-pad-office-lined-979558/
 
-- Ease in/out equations from (http://gizma.com/easing/)
+- Ease in/out equations from http://gizma.com/easing/
 
 - Tada sound from Windows 3.1
 
 - Draw sound from Family Feud circa 1994
+
+- Applause from http://soundbible.com/1964-Small-Crowd-Applause.html
 

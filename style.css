@@ -66,6 +66,14 @@ p {
   text-align: center;
 }
 
+.player-name {
+  text-decoration: underline;  
+}
+
+.player-name:hover {
+  cursor: pointer;
+}
+
 .instructions {
   margin: 2px 0;
 }
@@ -75,7 +83,7 @@ p {
   height: 54px;
   line-height: 54px;
   width: 100%;
-  font-size: 2em;
+  font-size: 32px;
   margin: 0;
 }
 

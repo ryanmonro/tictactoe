@@ -190,8 +190,8 @@ var drawBoard = function(canvas){
   }, easeOutExpo)}, easeOutExpo);
 }
 
-// animate a canvas drawing (fn) over time, then perform afterfn
-var animate = function(ms, start, goal, fn, afterfn, curveFn){
+// run fn 60 times per second, changing its parameter over time with curveFn, then perform afterfn
+var animate = function(ms, start, goal, fn, afterFn, curveFn){
   var frameRate = 60;
   var waitTime = 1000 / frameRate;
   var frames = Math.ceil(ms / waitTime);
@@ -201,7 +201,7 @@ var animate = function(ms, start, goal, fn, afterfn, curveFn){
     fn(curveFn(frame, start, goal, frames));
     if (frame === frames) {
       clearInterval(animation);
-      if (afterfn) afterfn();
+      if (afterFn) afterFn();
     }
     frame++;
   }, waitTime);
@@ -240,11 +240,15 @@ var lineSound = new Audio("sound/line200ms.ogg");
 var lineSound2 = new Audio("sound/line200ms.ogg");
 var winSound = new Audio("sound/tada.mp3");
 var drawSound = new Audio("sound/draw.ogg");
+var applauseSound = new Audio("sound/applause.mp3");
 
 //
 // DOM 
 //
-var winnerMessage = document.querySelector(".winner");
+var names = ["Player O", "Player X"];
+var winningScore = 5;
+var tournamentOver = false;
+var scoreboard = document.querySelector(".winner");
 var instructionsMessage = document.querySelector(".instructions");
 var boardSketch = document.querySelector("#board-sketch");
 
@@ -274,24 +278,36 @@ var play = function(x, y){
 
 var checkGameStatus = function(){
   if (game.winner) {
-    winSound.play();
     highlightWinner();
-    winnerMessage.textContent = game.winner + " wins!";
-    instructionsMessage.textContent = "Click on board to start a new game.";
+    if (game.scores[game.currentPlayer] >= winningScore) {
+      applauseSound.play();
+      tournamentOver = true;
+      scoreboard.textContent = names[game.currentPlayer] + " wins!";
+      instructionsMessage.textContent = "Click on board to start a new game.";
+    } else {
+      winSound.play();
+      showScores();
+      instructionsMessage.textContent = "Click on board to continue.";
+    }
   }
   else if (game.over) {
     drawSound.play();
-    winnerMessage.textContent = "Draw!";
+    scoreboard.textContent = "Draw!";
     instructionsMessage.textContent = "Click on board to start a new game.";
   }
   else {
-    instructionsMessage.textContent = "Player " + game.player() + ", click  on a square to make your move";
+    showPlayerInstructions();
   }
 }
 
 var handleClick = function(event){
   // if game is finished, clicking resets the game
   if (game.over){
+    if (tournamentOver) {
+      tournamentOver = false;
+      game.scores[0] = 0;
+      game.scores[1] = 0;
+    }
     newGame();
     // otherwise, make move in clicked square
   } else if (event.target.className === "square-canvas" ){
@@ -334,17 +350,24 @@ var newGame = function(){
   clearBoard(boardSketch);
   drawBoard(boardSketch);
   updateBoard();
-  winnerMessage.textContent = getScore();
-  instructionsMessage.textContent = "Player " + game.player() + ", click  on a square to make your move";
+  showScores();
+  showPlayerInstructions();
 }
 
-var getScore = function(){
-  if (game.scores[0] === 0
-    && game.scores[1] === 0)
-    return "";
-  return "Noughts: " + game.scores[0] +
-        ", Crosses: " + game.scores[1];
+var showPlayerInstructions = function(){
+  instructionsMessage.innerHTML = "<span class='player-name' contenteditable>" + names[game.currentPlayer] + "</span>, click  on a square to place your " + game.player();
+  var playerNameEntry = instructionsMessage.querySelector("span");
+  playerNameEntry.addEventListener("input", function(){
+    names[game.currentPlayer] = playerNameEntry.textContent;
+    showScores();
+  });
+  
+}
 
+var showScores = function(){
+  scoreboard.textContent = 
+    names[0] + ": " + game.scores[0] + ", " + 
+    names[1] + ": " + game.scores[1];
 }
 
 var renderPlayer = function(x, y, callback){
@@ -365,12 +388,5 @@ var renderPlayer = function(x, y, callback){
 //
 newGame();
 
-
 // todo:
-// readme https://pixabay.com/en/legal-pad-paper-pad-office-lined-979558/
-// win twice, score twice!
-// persistent scores 
-// 
-// hidpi
-// 
-// inkscape, svg, animation
+// victory - first to 5
