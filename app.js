@@ -3,6 +3,7 @@
 //
 var game = {
   board: [],
+  scores: [0, 0],
   players: ["O", "X"],
   currentPlayer: 0,
   size: 3,
@@ -84,6 +85,7 @@ var game = {
     });
     if (allTilesMatch){
       game.winner = firstElement.player;
+      game.scores[game.currentPlayer]++;
       game.over = true;
       arr.forEach(function(tile){
         tile.win = true;
@@ -146,30 +148,39 @@ var drawO = function(square, callback){
   }, callback, easeInOutExpo);
 }
 
+var clearBoard = function(canvas){
+  ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
 var drawBoard = function(canvas){
   ctx = canvas.getContext("2d");
   ctx.lineWidth = 2;
   ctx.lineCap = 'round';
-  ctx.strokeStyle = 'rgba(128,128,128, 0.1)';
-  animate(600, 0, 450, function(length){
+  //ctx.strokeStyle = 'rgba(128,128,128, 0.1)';
+  lineSound.play();
+  animate(400, 0, 450, function(length){
     ctx.beginPath();
     ctx.moveTo(150, 0);
     ctx.lineTo(150, length);
     ctx.stroke();
   }, function(){
-    animate(600, 0, 450, function(length){
+    lineSound2.play();
+    animate(400, 0, 450, function(length){
     ctx.beginPath();
     ctx.moveTo(300, 0);
     ctx.lineTo(300, length);
     ctx.stroke();
   }, function(){
-    animate(600, 0, 450, function(length){
+    lineSound.play();
+    animate(400, 0, 450, function(length){
     ctx.beginPath();
     ctx.moveTo(0, 150);
     ctx.lineTo(length, 150);
     ctx.stroke();
   }, function(){
-    animate(600, 0, 450, function(length){
+    lineSound2.play();
+    animate(400, 0, 450, function(length){
     ctx.beginPath();
     ctx.moveTo(0, 300);
     ctx.lineTo(length, 300);
@@ -222,10 +233,13 @@ var resetSquare = function(square){
 //
 // Audio
 //
-var xSound = new Audio("x.ogg");
-var oSound = new Audio("o.ogg");
-var winSound = new Audio("tada.mp3");
-var drawSound = new Audio("draw.ogg");
+var xSound = new Audio("sound/x.ogg");
+var oSound = new Audio("sound/o.ogg");
+// two identical sounds because it was having trouble replaying them fast enough
+var lineSound = new Audio("sound/line200ms.ogg");
+var lineSound2 = new Audio("sound/line200ms.ogg");
+var winSound = new Audio("sound/tada.mp3");
+var drawSound = new Audio("sound/draw.ogg");
 
 //
 // DOM 
@@ -234,7 +248,6 @@ var winnerMessage = document.querySelector(".winner");
 var instructionsMessage = document.querySelector(".instructions");
 var boardSketch = document.querySelector("#board-sketch");
 
-drawBoard(boardSketch);
 // an array of divs for the game board
 var getDomSquares = function(){
   // var boardCanvas = document.querySelector('#board');
@@ -256,7 +269,7 @@ var board = getDomSquares();
 var play = function(x, y){
   game.markSquare(x, y);  
   // check game status after we draw the player on the board
-  drawPlayer(x, y, checkGameStatus);
+  renderPlayer(x, y, checkGameStatus);
 }
 
 var checkGameStatus = function(){
@@ -302,7 +315,7 @@ var highlightWinner = function(){
 var updateBoard = function(){
   for (var y = 0; y < 3; y++){
     for (var x = 0; x < 3; x++){
-      drawPlayer(x, y);
+      renderPlayer(x, y);
       setSquareHighlight(game.board[y][x], board[y][x]);
     }
   }
@@ -318,12 +331,23 @@ var setSquareHighlight = function(square, target){
 
 var newGame = function(){
   game.newGame();
+  clearBoard(boardSketch);
+  drawBoard(boardSketch);
   updateBoard();
-  winnerMessage.textContent = "";
+  winnerMessage.textContent = getScore();
   instructionsMessage.textContent = "Player " + game.player() + ", click  on a square to make your move";
 }
 
-var drawPlayer = function(x, y, callback){
+var getScore = function(){
+  if (game.scores[0] === 0
+    && game.scores[1] === 0)
+    return "";
+  return "Noughts: " + game.scores[0] +
+        ", Crosses: " + game.scores[1];
+
+}
+
+var renderPlayer = function(x, y, callback){
   var square = board[y][x];
   var player = game.board[y][x].player;
   if (player === "X") {
@@ -343,7 +367,10 @@ newGame();
 
 
 // todo:
-// hidpi
-// make drawing more human?
-// draw the board again for new game
 // readme https://pixabay.com/en/legal-pad-paper-pad-office-lined-979558/
+// win twice, score twice!
+// persistent scores 
+// 
+// hidpi
+// 
+// inkscape, svg, animation
