@@ -100,23 +100,27 @@ var game = {
 //
 // Animation
 // 
-var drawX = function(square, callback){
-  var canvas = square.firstChild;
+var squareSize = 150;
+
+var drawX = function(canvas, x, y, callback){
+  // var canvas = square.firstChild;
   var ctx = canvas.getContext("2d");
   var lineWidthInitial = 8;
   var lineWidthChange = 0;
   ctx.lineWidth = lineWidthInitial;
   ctx.lineCap = 'round';
-  var padding = canvas.width / 2 - 50;
-  var height = canvas.height - 2 * padding;
+  var padding = squareSize / 2 - 50;
+  var height = squareSize - 2 * padding;
   var width = height;
+  var xStart = x * 150;
+  var yStart = y * 150;
   xSound.play();
   // draw L-R stroke in 150ms
   animate(150, 0, width, function(crossWidth){
     ctx.beginPath();
-    ctx.moveTo(padding, padding);
+    ctx.moveTo(xStart + padding, yStart + padding);
     // ctx.lineWidth = lineWidthInitial;
-    ctx.lineTo(padding + crossWidth, padding + crossWidth);  
+    ctx.lineTo(xStart + padding + crossWidth, yStart + padding + crossWidth);  
     ctx.stroke();
   }, 
     // wait 200ms before second stroke
@@ -125,26 +129,26 @@ var drawX = function(square, callback){
         ctx.lineWidth = lineWidthInitial;
         animate(150, 0, width, function(crossWidth){
           ctx.beginPath();
-          ctx.moveTo(padding + width, padding);
-          ctx.lineTo(padding + width - crossWidth, padding + crossWidth);  
-          // ctx.lineWidth = lineWidthInitial;
+          ctx.moveTo(xStart + padding + width, yStart + padding);
+          ctx.lineTo(xStart + padding + width - crossWidth, yStart + padding + crossWidth);  
           ctx.stroke();
       }, callback, easeOutExpo)}, 200);
     }, easeOutExpo 
   );
 }
 
-var drawO = function(square, callback){
-  var canvas = square.firstChild;
+var drawO = function(canvas, x, y, callback){
   var ctx = canvas.getContext("2d");
   var start = Math.PI / -2;
+  var xStart = x * 150;
+  var yStart = y * 150;
   oSound.play();
   animate(300, start, -2 * Math.PI, function(arcLength){
     ctx.beginPath();
-    var center = canvas.width / 2;
+    var center = squareSize / 2;
     ctx.lineWidth = 8;
     ctx.lineCap = 'round';
-    ctx.arc(center, center, 50, start, arcLength, true);
+    ctx.arc(xStart + center, yStart + center, 50, start, arcLength, true);
     ctx.stroke();
   }, callback, easeInOutExpo);
 }
@@ -155,10 +159,10 @@ var clearBoard = function(canvas){
 }
 
 var drawBoard = function(canvas){
+  drawing = true;
   ctx = canvas.getContext("2d");
   ctx.lineWidth = 2;
   ctx.lineCap = 'round';
-  //ctx.strokeStyle = 'rgba(128,128,128, 0.1)';
   lineSound.play();
   animate(400, 0, 450, function(length){
     ctx.beginPath();
@@ -186,7 +190,9 @@ var drawBoard = function(canvas){
     ctx.moveTo(0, 300);
     ctx.lineTo(length, 300);
     ctx.stroke();
-  }, null, easeOutExpo)
+  }, function(){
+    drawing = false;
+  }, easeOutExpo)
   }, easeOutExpo)
   }, easeOutExpo)}, easeOutExpo);
 }
@@ -208,6 +214,17 @@ var animate = function(ms, start, goal, fn, afterFn, curveFn){
   }, waitTime);
 }
 
+var highlightSquare = function(canvas, x, y){
+  var ctx = canvas.getContext("2d");
+  var padding = squareSize / 2 - 50;
+  var height = 150;
+  var width = height;
+  var xStart = x * 150;
+  var yStart = y * 150;
+  ctx.fillStyle = "rgba(127,255,0,0.4)";
+  ctx.fillRect(xStart, yStart, width, height);
+}
+
 // Ease In/Out Equations from http://gizma.com/easing/
 // t: frame, b:start, c: goal, d: frames
 var linearTween = function (t, b, c, d) {
@@ -223,12 +240,6 @@ var easeInOutExpo = function (t, b, c, d) {
   if (t < 1) return c/2 * Math.pow( 2, 10 * (t - 1) ) + b;
   t--;
   return c/2 * ( -Math.pow( 2, -10 * t) + 2 ) + b;
-};
-
-var resetSquare = function(square){
-  var canvas = square.firstChild;
-  var ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
 };
 
 //
@@ -247,29 +258,12 @@ var applauseSound = new Audio("sound/applause.mp3");
 // DOM 
 //
 var names = ["Player O", "Player X"];
+var drawing = false;
 var winningScore = 5;
 var tournamentOver = false;
 var scoreboard = document.querySelector(".winner");
 var instructionsMessage = document.querySelector(".instructions");
-var boardSketch = document.querySelector("#board-sketch");
-
-// an array of divs for the game board
-var getDomSquares = function(){
-  // var boardCanvas = document.querySelector('#board');
-  var squares = document.querySelectorAll(".square");
-  var sq = 0;
-  var board = [];
-  for (var y = 0; y < game.size; y++){
-    var row = [];
-    for (var x = 0; x < game.size; x++){
-      row.push(squares[sq++]);
-    }
-    board.push(row);
-  };
-  return board;
-};
-
-var board = getDomSquares();
+var boardCanvas = document.querySelector("#board-sketch");
 
 var play = function(x, y){
   // only render player if mark square is succesful
@@ -282,7 +276,7 @@ var play = function(x, y){
 
 var checkGameStatus = function(){
   if (game.winner) {
-    highlightWinner();
+    highlightBoard();
     if (game.scores[game.currentPlayer] >= winningScore) {
       applauseSound.play();
       tournamentOver = true;
@@ -306,6 +300,9 @@ var checkGameStatus = function(){
 
 var handleClick = function(event){
   // if game is finished, clicking resets the game
+  if (drawing) {
+    return;
+  }
   if (game.over){
     if (tournamentOver) {
       tournamentOver = false;
@@ -314,46 +311,30 @@ var handleClick = function(event){
     }
     newGame();
     // otherwise, make move in clicked square
-  } else if (event.target.className === "square-canvas" ){
-    var row = Number(event.target.dataset.row);
-    var column = Number(event.target.dataset.column);
+  } else {
+    var row = Math.floor(event.offsetY / 150);
+    var column = Math.floor(event.offsetX / 150);
     play(column, row);
   }
 };
 
-var main = document.querySelector("main");
-main.addEventListener('click', handleClick);
+boardCanvas.addEventListener('click', handleClick);
 
-var highlightWinner = function(){
+var highlightBoard = function(){
   for (var y = 0; y < 3; y++){
     for (var x = 0; x < 3; x++){
-      setSquareHighlight(game.board[y][x], board[y][x]);
+      var square = game.board[y][x];
+      if (square.win) {
+        highlightSquare(boardCanvas, x, y);
+      }
     }
-  }
-}
-
-var updateBoard = function(){
-  for (var y = 0; y < 3; y++){
-    for (var x = 0; x < 3; x++){
-      renderPlayer(x, y);
-      setSquareHighlight(game.board[y][x], board[y][x]);
-    }
-  }
-};
-
-var setSquareHighlight = function(square, target){
-  if (square.win) {
-    target.classList.add('winning-square');
-  } else {
-    target.className = 'square';
   }
 }
 
 var newGame = function(){
   game.newGame();
-  clearBoard(boardSketch);
-  drawBoard(boardSketch);
-  updateBoard();
+  clearBoard(boardCanvas);
+  drawBoard(boardCanvas);
   showScores();
   showPlayerInstructions();
 }
@@ -367,7 +348,6 @@ var showPlayerInstructions = function(){
     names[game.currentPlayer] = playerNameEntry.textContent;
     showScores();
   });
-  
 }
 
 var showScores = function(){
@@ -377,16 +357,12 @@ var showScores = function(){
 }
 
 var renderPlayer = function(x, y, callback){
-  var square = board[y][x];
   var player = game.board[y][x].player;
   if (player === "X") {
-    drawX(square, callback);
+    drawX(boardCanvas, x, y, callback);
   } else if (player === "O") {
-    drawO(square, callback);
-  } else if (player === null) {
-    resetSquare(square);
-  }
-  
+    drawO(boardCanvas, x, y, callback);
+  }  
 }
 
 //
@@ -394,8 +370,6 @@ var renderPlayer = function(x, y, callback){
 //
 newGame();
 
-
-// sound plays when a taken square is clicked again, so it must be animating too
+// Todo:
 // single player mode
-// One canvas instead of ten
 

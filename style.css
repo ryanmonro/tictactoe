@@ -23,18 +23,8 @@ body {
   margin: 0 auto;
 }
 
-main {
-  z-index: 1;
-  margin: 0 auto;
-  position: absolute;
-  width: 450px;
-  height: 450px;
-  top: 0;
-  left: 0;
-}
-
 #board-sketch {
-  z-index: 0;
+  z-index: 1;
   position: absolute;
   top: 0;
   left: 0;
@@ -93,23 +83,6 @@ p {
   font-size: 1.2em;
   height: 100px;
   margin-bottom: 25px;
-}
-
-.square {
-  display: inline-block;
-  margin: 4px;
-  vertical-align: top;
-  text-align: center;
-  width: 142px;
-  height: 142px;
-  line-height: 142px;
-  font-size: 100px;
-}
-
-.winning-square {
-  transition: 400ms;
-  background: rgba(127,255,0,0.4);
-  opacity: 20%;
 }
 
 footer {
