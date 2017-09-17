@@ -37,7 +37,7 @@ var game = {
   },
   markSquare: function(x, y){
     if (game.over || !game.spaceAvailable(x, y)) {
-      return;
+      return false;
     }
     game.board[y][x].player = game.players[game.currentPlayer];
     game.moves++;
@@ -46,6 +46,7 @@ var game = {
     if (game.over === false){
       game.currentPlayer = Math.abs(game.currentPlayer - 1);
     }
+    return true;
   },
   checkForWin: function(x, y){
     game.checkTilesMatch(game.row(y));
@@ -271,9 +272,12 @@ var getDomSquares = function(){
 var board = getDomSquares();
 
 var play = function(x, y){
-  game.markSquare(x, y);  
+  // only render player if mark square is succesful
+  if (game.markSquare(x, y)){
   // check game status after we draw the player on the board
-  renderPlayer(x, y, checkGameStatus);
+    renderPlayer(x, y, checkGameStatus);  
+  }
+  
 }
 
 var checkGameStatus = function(){
@@ -389,4 +393,9 @@ var renderPlayer = function(x, y, callback){
 // program flow starts here
 //
 newGame();
+
+
+// sound plays when a taken square is clicked again, so it must be animating too
+// single player mode
+// One canvas instead of ten
 
