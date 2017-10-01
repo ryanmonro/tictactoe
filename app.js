@@ -6,6 +6,8 @@ var game = {
   scores: [0, 0],
   players: ["O", "X"],
   currentPlayer: 0,
+  lastPlay: [],
+  hard: true,
   size: 3,
   moves: 0,
   over: false,
@@ -30,7 +32,8 @@ var game = {
     game.winner = null;
     game.moves = 0;
     // choose random player to start
-    game.currentPlayer = Math.floor(Math.random() * 2);
+    // game.currentPlayer = Math.floor(Math.random() * 2);
+    game.currentPlayer = 0;
   },
   spaceAvailable: function(x, y){
     return game.board[y][x].player === null;
@@ -40,13 +43,81 @@ var game = {
       return false;
     }
     game.board[y][x].player = game.players[game.currentPlayer];
+    game.lastPlay = [x, y];
     game.moves++;
     game.checkForWin(x, y); 
     // if game not over, switch players
     if (game.over === false){
-      game.currentPlayer = Math.abs(game.currentPlayer - 1);
+      game.switchPlayers();
     }
     return true;
+  },
+  findAvailableMoves: function(){
+    // will always return at least one possible move
+    var coordChoices = [];
+    // get all winnable directions on the board (rows, cols, diags)
+    var all = game.allWinnableArrays();
+    // check players in squares on each array
+    for (var i = 0; i < all.length; i++){
+      var arr = all[i];
+      // tally how many of each player in this array
+      var xCount = 0;
+      var oCount = 0;
+      var empties = []; // coords of empty squares in array
+      for (var sqIndex = 0; sqIndex < arr.length; sqIndex++){
+        sq = arr[sqIndex];
+        if (game.board[sq.y][sq.x].player === "X") {
+          xCount++;
+        } else if (game.board[sq.y][sq.x].player === "O") {
+          oCount++;
+        } else {
+          empties.push({x:sq.x, y:sq.y});
+        }
+      }
+      // first: if CPU has two, play the third sq to win.
+      // rank: 5
+      if (xCount == 2 && oCount == 0){
+        coordChoices.push({rank: 5, coords: empties[0]});
+        // coords = empties[0];
+        // break;
+      }
+      // if opponent has two, play third to block them
+      // rank: 4
+      else if (oCount == 2 && xCount == 0){
+        coordChoices.push({rank: 4, coords: empties[0]});
+        // coords = empties[0] ;
+        // break;
+      }
+      // if CPU has one, play a second square
+      else if (xCount == 1 && oCount == 0) {
+        coordChoices.push({rank: 3, coords:empties[0]});
+        coordChoices.push({rank: 3, coords:empties[1]});
+      }
+      // if opponent has one, play a square to block them
+      else if (oCount == 1 && xCount == 0) {
+        coordChoices.push({rank: 2, coords:empties[0]});
+        coordChoices.push({rank: 2, coords:empties[1]});
+      }
+    }
+    // play center first if available
+    if (game.spaceAvailable(1, 1)){
+      coordChoices.push({rank: 7, coords:{x: 1, y: 1}});
+    }
+    return coordChoices;
+  },
+  cpuMove: function(){
+    var coordChoices = game.findAvailableMoves();
+    // find best move in available choices
+    var bestMove = coordChoices[0];
+    coordChoices.forEach(function(choice){
+      if (choice.rank > bestMove.rank) {
+        bestMove = choice;
+      }
+    });
+    game.markSquare(bestMove.coords.x, bestMove.coords.y);
+  },
+  switchPlayers: function(){
+    game.currentPlayer = Math.abs(game.currentPlayer - 1);
   },
   checkForWin: function(x, y){
     game.checkTilesMatch(game.row(y));
@@ -77,6 +148,19 @@ var game = {
   },
   diagonal2: function(){
     return [game.board[2][0], game.board[1][1], game.board[0][2]];
+  },
+  allWinnableArrays: function(){
+    // return [game.row(0), game.row(1), game.row(2), 
+    //   game.column(0), game.column(1), game.column(2),
+    //   game.diagonal1(), game.diagonal2()];
+    return [[{x:0,y:0},{x:1,y:0},{x:2,y:0}],
+      [{x:0,y:1},{x:1,y:1},{x:2,y:1}],
+      [{x:0,y:2},{x:1,y:2},{x:2,y:2}],
+      [{x:0,y:0},{x:0,y:1},{x:0,y:2}],
+      [{x:1,y:0},{x:1,y:1},{x:1,y:2}],
+      [{x:2,y:0},{x:2,y:1},{x:2,y:2}],
+      [{x:0,y:0},{x:1,y:1},{x:2,y:2}],
+      [{x:2,y:0},{x:1,y:1},{x:0,y:2}]];
   },
   // return true if all tiles in given array are played by same player
   checkTilesMatch: function(arr){ 
@@ -257,7 +341,7 @@ var applauseSound = new Audio("sound/applause.mp3");
 //
 // DOM 
 //
-var names = ["Player O", "Player X"];
+var names = ["Player O", "CPU"];
 var drawing = false;
 var winningScore = 5;
 var tournamentOver = false;
@@ -270,8 +354,15 @@ var play = function(x, y){
   if (game.markSquare(x, y)){
   // check game status after we draw the player on the board
     renderPlayer(x, y, checkGameStatus);  
-  }
-  
+  } 
+}
+
+var autoPlay = function(){
+  game.cpuMove();
+  var x = game.lastPlay[0];
+  var y = game.lastPlay[1];
+  // check game status after we draw the player on the board
+  renderPlayer(x, y, checkGameStatus);  
 }
 
 var checkGameStatus = function(){
@@ -294,7 +385,10 @@ var checkGameStatus = function(){
     instructionsMessage.textContent = "Click on board to start a new game.";
   }
   else {
-    showPlayerInstructions();
+    // showPlayerInstructions();
+    if (game.currentPlayer == 1) {
+      autoPlay();
+    }
   }
 }
 
